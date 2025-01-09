@@ -73,5 +73,22 @@ namespace CdApi.Controllers
             return CreatedAtAction("GetCD", new { id = CDRequest.Id }, CDResponse);
         }
 
+        [HttpPatch("{id}/artistName")]
+        public async Task<IActionResult> AddArtistToCD(int id, string artistName)
+        {
+            var cd = await _context.CDs.FindAsync(id);
+            if (cd == null)
+            {
+                return NotFound();
+            }
+
+            cd.ArtistName = artistName;
+
+            _context.Entry(cd).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
     }
 }

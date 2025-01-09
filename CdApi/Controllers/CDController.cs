@@ -125,9 +125,6 @@ namespace CdApi.Controllers
             {
                 return NotFound();
             }
-
-
-
             var genre = await _context.Genres.Where(u => u.Name.ToLower().Contains(genreName.ToLower())).FirstOrDefaultAsync();
             if (genre is null)
             {

@@ -24,24 +24,44 @@ namespace CdApi.Controllers
             return await _context.CDs.ToListAsync();
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<CD>> GetCD(int id)
+        {
+            var cds = await _context.CDs.FindAsync(id);
+
+            if (cds == null)
+            {
+                return NotFound();
+            }
+
+            return cds;
+        }
         // POST: api/Addresses
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-//         [HttpPost]
-//         public async Task<ActionResult<CD>> PostAddress(int id, string name, string artistName, string description)
-//         {
-//             var CDRequest = new CD(){
-//                 Id = id,
-//                 Name = name,
-//                 ArtistName = artistName,
-//                 Description = description,
-//                 PurchaseDate = DateTime.Now,
-//             };
+        [HttpPost]
+        public async Task<ActionResult<CD>> PostAddress(string name, string artistName, string description)
+        {
+            var CDRequest = new CD()
+            {
+                Name = name,
+                ArtistName = artistName,
+                Description = description,
+                PurchaseDate = DateTime.Now,
+            };
 
-//            _context.CDs.Add(CDRequest);
-//             await _context.SaveChangesAsync();     
+            _context.CDs.Add(CDRequest);
+            await _context.SaveChangesAsync();
 
-//             return CreatedAtAction("GetAddress", new { id = CDRequest.Id }, CDRequest);
-//         }
+            var CDResponse = new CDResponse
+             {
+
+                name = CDRequest.Name,
+                artistName = CDRequest.ArtistName,
+                description = CDRequest.Description
+             };
+
+            return CreatedAtAction("GetCD", new { id = CDRequest.Id }, CDResponse);
+        }
 
     }
 }

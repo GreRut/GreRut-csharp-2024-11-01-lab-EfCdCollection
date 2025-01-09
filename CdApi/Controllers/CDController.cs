@@ -19,20 +19,47 @@ namespace CdApi.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CD>>> GetCDs()
+        public async Task<ActionResult<IEnumerable<CDwithGenre>>> GetCDs()
         {
-            return await _context.CDs.ToListAsync();
+            return await _context.CDs.Include(cd => cd.Genre).Select(cd => new CDwithGenre
+            {
+                Id = cd.Id,
+                Name = cd.Name,
+                ArtistName = cd.ArtistName,
+                Description = cd.Description,
+                PurchaseDate = cd.PurchaseDate,
+                GenreId = cd.GenreId,
+                GenreName = cd.Genre.Name
+            }).ToListAsync();
         }
 
         [HttpGet("search")]
-        public async Task<ActionResult<IEnumerable<CD>>> SearchGenre(string? genre)
+        public async Task<ActionResult<IEnumerable<CDwithGenre>>> SearchGenre(string? genre)
         {
             if (genre != null)
             {
-                return await _context.CDs.Where(u => u.ArtistName.ToLower().Contains(genre.ToLower())).ToListAsync();
+                return await _context.CDs.Include(cd => cd.Genre).Where(u => u.Genre.Name.ToLower().Contains(genre.ToLower())).Select(cd => new CDwithGenre
+                {
+                    Id = cd.Id,
+                    Name = cd.Name,
+                    ArtistName = cd.ArtistName,
+                    Description = cd.Description,
+                    PurchaseDate = cd.PurchaseDate,
+                    GenreId = cd.GenreId,
+                    GenreName = cd.Genre.Name
+                }).ToListAsync();
             }
             else
-                return await _context.CDs.ToListAsync();
+                return await _context.CDs.Include(cd => cd.Genre).Select(cd => new CDwithGenre
+                {
+                    Id = cd.Id,
+                    Name = cd.Name,
+                    ArtistName = cd.ArtistName,
+                    Description = cd.Description,
+                    PurchaseDate = cd.PurchaseDate,
+                    GenreId = cd.GenreId,
+                    GenreName = cd.Genre.Name
+                }).ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -74,7 +101,7 @@ namespace CdApi.Controllers
         }
 
         [HttpPatch("{id}/artistName")]
-        public async Task<IActionResult> AddArtistToCD(int id, string artistName)
+        public async Task<IActionResult> ChangeArtistCD(int id, string artistName)
         {
             var cd = await _context.CDs.FindAsync(id);
             if (cd == null)
@@ -90,5 +117,32 @@ namespace CdApi.Controllers
             return NoContent();
         }
 
+        [HttpPut("{id}/genre")]
+        public async Task<IActionResult> AddGenreToCD(int id, string genreName)
+        {
+            var cd = await _context.CDs.FindAsync(id);
+            if (cd == null)
+            {
+                return NotFound();
+            }
+
+
+
+            var genre = await _context.Genres.Where(u => u.Name.ToLower().Contains(genreName.ToLower())).FirstOrDefaultAsync();
+            if (genre is null)
+            {
+                genre = new Genre
+                {
+                    Name = genreName
+                };
+                _context.Genres.Add(genre);
+                await _context.SaveChangesAsync();
+            }
+            cd.Genre = genre;
+
+            _context.Entry(cd).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
     }
 }

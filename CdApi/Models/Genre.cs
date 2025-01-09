@@ -6,6 +6,6 @@ namespace CdApi.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public List<CD> CDList {get; set; } = [];
+        public List<CD> CDList { get; set; } = [];
     }
 }

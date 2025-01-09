@@ -17,11 +17,22 @@ namespace CdApi.Controllers
             _context = context;
         }
 
-        // GET: api/Addresses
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CD>>> GetCDs()
         {
             return await _context.CDs.ToListAsync();
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<CD>>> SearchGenre(string? genre)
+        {
+            if (genre != null)
+            {
+                return await _context.CDs.Where(u => u.ArtistName.ToLower().Contains(genre.ToLower())).ToListAsync();
+            }
+            else
+                return await _context.CDs.ToListAsync();
         }
 
         [HttpGet("{id}")]
@@ -36,8 +47,7 @@ namespace CdApi.Controllers
 
             return cds;
         }
-        // POST: api/Addresses
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+
         [HttpPost]
         public async Task<ActionResult<CD>> PostAddress(string name, string artistName, string description)
         {
@@ -53,12 +63,12 @@ namespace CdApi.Controllers
             await _context.SaveChangesAsync();
 
             var CDResponse = new CDResponse
-             {
+            {
 
                 name = CDRequest.Name,
                 artistName = CDRequest.ArtistName,
                 description = CDRequest.Description
-             };
+            };
 
             return CreatedAtAction("GetCD", new { id = CDRequest.Id }, CDResponse);
         }

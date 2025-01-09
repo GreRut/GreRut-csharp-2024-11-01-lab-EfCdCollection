@@ -38,7 +38,7 @@ namespace CdApi.Controllers
             };
 
             _context.Genres.Add(genreRequest);
-            await _context.SaveChangesAsync();     
+            await _context.SaveChangesAsync();
 
             // Return the response with the correct variable
             return CreatedAtAction("GetGenres", new { id = genreRequest.Id }, genreRequest);
